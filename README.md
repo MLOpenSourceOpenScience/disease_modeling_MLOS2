@@ -2,7 +2,7 @@
 ------------------------------------------------------------------------------------------------------------------------------
 ## Project Description:
 
-## Gathering Data:
+## Gathering And Visualizing Data:
 1. To access satellite data (e.g., prescriptions), utilize resources from NASA's satellite collections such as Giovanni. Identify and visit the specific resource website for the desired data.
 2. For this project, we used links from NASA for NDVI, GPM, and GLDAS. One can always follow the respective instructions on their websites. The data resolution used in our project is flexible; any resolution size is compatible.
 3. After obtaining the data, organize it by creating a main directory and then sub-directories within it, each named after the specific data category (e.g., Prescription). It's essential to maintain the data format as netCDF (nc4).
