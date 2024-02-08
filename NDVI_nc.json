@@ -1,6 +1,0 @@
-{
-	"latVar":"latitude",
-	"lonVar":"longitude",
-	"is360":false,
-	"extraVars": ["NDVI"]
-}
