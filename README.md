@@ -2,11 +2,65 @@
 ------------------------------------------------------------------------------------------------------------------------------
 ## Project Description:
 
-## Gathering And Visualizing Data:
-1. To access satellite data (e.g., prescriptions), utilize resources from NASA's satellite collections such as Giovanni. Identify and visit the specific resource website for the desired data.
-2. For this project, we used links from NASA for NDVI, GPM, and GLDAS. One can always follow the respective instructions on their websites. The data resolution used in our project is flexible; any resolution size is compatible.
-3. After obtaining the data, organize it by creating a main directory and then sub-directories within it, each named after the specific data category (e.g., Prescription). It's essential to maintain the data format as netCDF (nc4).
-4. Repeat the organization process for additional data types like temperature and humidity. Our custom software package allows for the serialization of the downloaded data files, targeting specific geographical areas.
-5. Once the data is preprocessed and stored in the respective subfolders for each data type and area, one can use our provided pip package for preprocessing it into customized areas with a given latitute and longitute bound. 
-6. For any data type (NDVI, GLDAS, etc.), after preprocessing, you can apply the layering process using our package. In the script, specify the paths for the data directory, the subdirectory for the targeted data, the output directory, and the data file extension. Currently, we support Python pickle and GeoJSON file formats, emphasizing pickle for its compression benefits. Additionally, define the Coordinate Reference System (CRS).
-7. After setting up all necessary variables in the script, installation of the FFmpeg package is required for data visualization. The final output will be an MP4 video showcasing the data.
+## Gathering Data:
+1. For consistent results, a standardized directory structure must be defined as follows:
+   1. A directory must be created to store all retrieved data.
+   2. A subdirectory should be created for each data source, i.e., every category of satellite data.
+   3. A subdirectory should be created for storing geographical data. 
+2. The data used in this project is from NASA's Earth Observational Satellite Data. This data can be retrieved from Nasa Giovanni, NOAH, and MODIS by following the instructions on NASA Earthdata: https://www.earthdata.nasa.gov/. A detailed guide is available at https://towardsdatascience.com/getting-nasa-data-for-your-next-geo-project-9d621243b8f3.
+   1. This project will use GPM, GLDAS, and NDVI data.
+   2. Satellite data will come in HDF5, netCDF, and netCDF4 formats. Our use case only requires netCDF and netCDF4 data, hence, our code does not support other formats.
+   3. Satellite data comes at varying resolutions. Our preprocessor implementation is resolution agnostic.
+3. Geographical data in the form of GeoJSONs is also required.
+   1. In our case, we will be using Sri Lanka's GeoJSON data retrieved from https://gadm.org/download_country.html. Simply download the desired resolution.
+
+Below is a sample directory tree:
+```text
+- Data
+    - Geographical
+        - Sri_Lanka.json
+    - GPM
+        - GPM.nc
+        - GPM2.nc
+    - GLDAS
+        - GLDAS.nc
+        - GLDAS2.nc
+    - NDVI
+        - NDVI.nc4
+        - NDVI2.nc4
+```
+
+## Preprocessing Data
+1. Once your desired data is downloaded, configuration files must be made to specify how the data will be processed with our package mlossp.
+2. Your preprocessing script and configuration files can be placed anywhere, so long as you provide the relative Path to your data.
+3. Instructions and documentation to create these files can be found at https://pypi.org/project/mlossp/.
+
+## Visualizing Data
+1. To visualize the data, you must have saved pickle files during the preprocessing step by setting compress to True. These should be located within your designated out directory for each category of satellite data.
+2. Download ffmpeg from https://ffmpeg.org/download.html.
+   1. Set the variable ```plt.rcParams['animation.ffmpeg_path']``` to the absolute path to the ffmpeg.exe executable file that is in the ffmpeg directory.
+3. Run the visualize.py script, providing the following command line arguments:
+   1. -d - The path to your data directory as defined in the Gathering Data section.
+   2. -c - The column name of the target feature you would like to visualize.
+   3. -o - The path to the file where the resulting visualization will be saved.
+   4. -f - The frames per second of your visualization. Lower fps will result in a slower animation.
+   5. -l - The lower bound of the possible values of your target feature. Defaults to 0.
+   6. -u - The upper bound of the possible values of your target feature. Defaults to 1.
+   7. -g - The coordinate reference system used by your data. Defaults to EPSG:4326.
+
+Given the following directory structure:
+```text
+    - Data
+        - Geographical
+        - GPM
+        - GPM_OUT
+            - GPM_OUT1.pkl
+            - GPM_OUT2.pkl
+        - Visualizations
+    - visualize.py
+```
+
+The following command line command can be run:
+```text
+./visualize.py -d Data\GPM_OUT -c Feature_Name -o Data\GPM_Visualization -f 1 -l 0 -u 10 -g EPSG:4326
+```
