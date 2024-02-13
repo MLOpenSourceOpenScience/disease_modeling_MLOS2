@@ -40,13 +40,18 @@ Below is a sample directory tree:
 2. Download ffmpeg from https://ffmpeg.org/download.html.
    1. Set the variable ```plt.rcParams['animation.ffmpeg_path']``` to the absolute path to the ffmpeg.exe executable file that is in the ffmpeg directory.
 3. Run the visualize.py script, providing the following command line arguments:
-   1. -d - The path to your data directory as defined in the Gathering Data section.
-   2. -c - The column name of the target feature you would like to visualize.
-   3. -o - The path to the file where the resulting visualization will be saved.
-   4. -f - The frames per second of your visualization. Lower fps will result in a slower animation.
-   5. -l - The lower bound of the possible values of your target feature. Defaults to 0.
-   6. -u - The upper bound of the possible values of your target feature. Defaults to 1.
-   7. -g - The coordinate reference system used by your data. Defaults to EPSG:4326.
+   1. -t - The title of your graph.
+   2. -d - The path to your data directory as defined in the Gathering Data section.
+   3. -c - The column name of the target feature you would like to visualize.
+   4. -o - The path to the file where the resulting visualization will be saved.
+   5. -f - The frames per second of your visualization. Lower fps will result in a slower animation.
+   6. -l - The lower bound of the possible values of your target feature. Defaults to 0.
+   7. -u - The upper bound of the possible values of your target feature. Defaults to 1.
+   8. -g - The coordinate reference system used by your data. Defaults to EPSG:4326.
+   9. -xl - The x label of the graph. Defaults to None.
+   10. -yl - The y label of the graph. Defaults to None.
+   11. -ll - The label for the graph's legend. Defaults to none.
+   
 
 Given the following directory structure:
 ```text
@@ -62,5 +67,5 @@ Given the following directory structure:
 
 The following command line command can be run:
 ```text
-./visualize.py -d Data\GPM_OUT -c Feature_Name -o Data\GPM_Visualization -f 1 -l 0 -u 10 -g EPSG:4326
+python ./visualize.py -d Data\GPM_OUT -c Feature_Name -o Data\GPM_Visualization -f 1 -l 0 -u 10 -g EPSG:4326
 ```
