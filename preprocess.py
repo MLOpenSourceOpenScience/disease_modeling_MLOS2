@@ -10,27 +10,29 @@ CONFIG_LIST = [
     "Configs/NDVI_config.json",
     "Configs/GPM_config.json",
     "Configs/GLDAS_config.json",
+    "Configs/POP_DEN_config.json"
 ]
 KWARGS_LIST = [
     {"record_out": NDVI, "region_out": REGION, "nc_config": "Configs/NDVI_nc.json"},
     {"record_out": GPM, "region_out": REGION, "nc_config": "Configs/GPM_nc.json"},
     {"record_out": GLDAS, "region_out": REGION, "nc_config": "Configs/GLDAS_nc.json"},
+    {"region_out": REGION},
 ]
 
 
-def process_one(CONFIG_FILE, KWARGS_IDX):
+def process_one(config_file, kwargs_idx):
     preprocessor = sp.Preprocessor(
-        config_file=CONFIG_FILE,
-        **KWARGS_LIST[KWARGS_IDX],
+        config_file=config_file,
+        **KWARGS_LIST[kwargs_idx],
     )
     preprocessor.preprocess()
 
 
-def process_all(CONFIG_LIST, KWARGS_LIST):
-    preprocessor = sp.Preprocessor(config_file=CONFIG_LIST[0])
-    preprocessor.preprocess_multi(CONFIG_LIST, KWARGS_LIST)
+def process_all(config_list, kwargs_list):
+    preprocessor = sp.Preprocessor(config_file=config_list[0])
+    preprocessor.preprocess_multi(config_list, kwargs_list)
 
 
 if __name__ == "__main__":
-    process_one("Configs/GLDAS_config.json", 2)
+    process_one(CONFIG_LIST[3], 3)
     # process_all(CONFIG_LIST, KWARGS_LIST)

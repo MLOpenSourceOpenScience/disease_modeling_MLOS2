@@ -18,7 +18,7 @@ plt.rcParams["animation.ffmpeg_path"] = (
 
 # If APPLY is defined, applies a transformation to the designated column. Otherwise, leave as None.
 
-APPLY = lambda x: x - 273.1
+APPLY = None
 NDVI_COLORMAP = matplotlib.colors.LinearSegmentedColormap.from_list(
     "", [(0, "gray"), (0.5, "white"), (1, "green")]
 )
@@ -33,7 +33,8 @@ GPM_COLORMAP = matplotlib.colors.LinearSegmentedColormap.from_list(
     ],
 )
 GLDAS_COLORMAP = "Reds"
-CMAP = GLDAS_COLORMAP
+POP_DEN_COLORMAP = "YlOrRd"
+CMAP = POP_DEN_COLORMAP
 
 
 def load_from_pickle(path, crs):
@@ -51,19 +52,19 @@ def load_all_from_pickle(path, pattern, crs):
 
 
 def visualize(
-    DATA_DIR,
-    OUT_DIR,
-    COLUMN,
-    MIN_VALUE,
-    MAX_VALUE,
-    FPS,
-    CRS,
-    X_LABEL,
-    Y_LABEL,
-    LEGEND_LABEL,
-    TITLE,
+    data_dir,
+    out_dir,
+    column,
+    min_value,
+    max_value,
+    fps,
+    crs,
+    x_label,
+    y_label,
+    legend_label,
+    title,
 ):
-    gdf_list = load_all_from_pickle(DATA_DIR, "*.pkl", CRS)
+    gdf_list = load_all_from_pickle(data_dir, "*.pkl", crs)
 
     def idx_generator(gdf_list):
         for i in range(len(gdf_list)):
@@ -73,27 +74,27 @@ def visualize(
         plt.clf()
         f, data = gdf_list[frame]
         if APPLY:
-            data[COLUMN] = data[COLUMN].apply(APPLY)
+            data[column] = data[column].apply(APPLY)
         data.plot(
-            column=COLUMN,
+            column=column,
             cmap=CMAP,
-            vmin=MIN_VALUE,
-            vmax=MAX_VALUE,
+            vmin=min_value,
+            vmax=max_value,
             legend=True,
-            legend_kwds={"label": f"{LEGEND_LABEL}"},
+            legend_kwds={"label": f"{legend_label}"},
             ax=plt.gca(),
             edgecolor="black",
         )
-        plt.title(f"{TITLE}, {f}\n")
-        plt.xlabel(f"{X_LABEL}")
-        plt.ylabel(f"{Y_LABEL}")
+        plt.title(f"{title} {f}\n")
+        plt.xlabel(f"{x_label}")
+        plt.ylabel(f"{y_label}")
 
     # Create the animation
 
     animation = FuncAnimation(
         plt.gcf(), update, frames=idx_generator(gdf_list), repeat=False
     )
-    animation.save(f"{OUT_DIR}.mp4", writer="ffmpeg", fps=FPS)
+    animation.save(f"{out_dir}.mp4", writer="ffmpeg", fps=fps)
 
 
 # Define command line arguments

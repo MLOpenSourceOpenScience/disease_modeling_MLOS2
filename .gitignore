@@ -157,3 +157,13 @@ cython_debug/
 
 # ffmpeg
 ffmpeg/
+
+# Images and Videos
+*.mp4
+*.png
+*.jpeg
+*.jpg
+
+# Untracked Directories
+Helpers/
+Data/
