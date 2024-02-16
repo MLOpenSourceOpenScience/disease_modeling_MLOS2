@@ -1,17 +1,18 @@
 {
   "crs": "EPSG:4326",
   "regions_dir": "Data/Countries",
-  "data_dir": "Data/GPM",
+  "data_dir": "Data/POP_DEN",
   "out_dir": "Data/OUT",
   "regions_file_map":  {
     "Sri Lanka": "gadm41_LKA_1.json",
+    "USA": "gadm41_USA_1.json",
+    "China": "gadm41_CHN_1.json",
     "Brazil": "gadm41_BRA_1.json"
   },
   "selected_regions": ["Sri Lanka"],
   "join_on": "NAME_1",
   "joins": {
-    "precipitationCal": ["mean", "min", "max"]
+    "population_density": ["mean", "min", "max", "sum"]
   },
-  "file_extension": "*.nc4",
-  "chunk": 7
+  "file_extension": "*.json"
 }

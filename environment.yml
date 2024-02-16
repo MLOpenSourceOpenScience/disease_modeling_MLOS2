@@ -1,0 +1,5 @@
+name: dm_mlos2
+dependencies:
+  - python>=3.10
+  - pip:
+      - mlossp

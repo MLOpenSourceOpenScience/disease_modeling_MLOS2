@@ -39,11 +39,11 @@ CMAP = POP_DEN_COLORMAP
 
 def load_from_pickle(path, crs):
     p_df = pd.read_pickle(path)
-    return gpd.GeoDataFrame(p_df, geometry=p_df.geometry, crs = crs)
+    return gpd.GeoDataFrame(p_df, geometry=p_df.geometry, crs=crs)
 
 
 def get_date(f):
-    ymd = str(f)[:-4].split('_')[-1]
+    ymd = str(f)[:-4].split("_")[-1]
     return f"{ymd[4:6]}/{ymd[6:]}/{ymd[:4]}"
 
 
@@ -98,89 +98,94 @@ def visualize(
 
 
 # Define command line arguments
-    
-parser = argparse.ArgumentParser(description='Visualize a sequence of pickled GeoJSONs')
+
+parser = argparse.ArgumentParser(description="Visualize a sequence of pickled GeoJSONs")
 parser.add_argument(
-    '-t',
-    '--title',
+    "-t",
+    "--title",
     default="",
     dest="TITLE",
     help="A title for the visualization.",
-    action='store'
+    action="store",
 )
 parser.add_argument(
-    '-d',
-    '--data_dir',
-    default='',
-    dest='DATA_DIR',
-    action='store',
-    help='Directory where pkl files are stored.')
+    "-d",
+    "--data_dir",
+    default="",
+    dest="DATA_DIR",
+    action="store",
+    help="Directory where pkl files are stored.",
+)
 parser.add_argument(
-    '-c',
-    '--column',
-    dest='COLUMN',
-    help='Target column to be visualized.',
-    action='store')
+    "-c",
+    "--column",
+    dest="COLUMN",
+    help="Target column to be visualized.",
+    action="store",
+)
 parser.add_argument(
-    '-o',
-    '--out',
-    default='',
-    dest='OUT_DIR',
-    help='Path to Output Directory',
-    action='store')
+    "-o",
+    "--out",
+    default="",
+    dest="OUT_DIR",
+    help="Path to Output Directory",
+    action="store",
+)
 parser.add_argument(
-    '-f',
-    '--fps',
+    "-f",
+    "--fps",
     default=5,
-    dest='FPS',
-    help='Visualization frames per second.',
-    action='store')
+    dest="FPS",
+    help="Visualization frames per second.",
+    action="store",
+)
 parser.add_argument(
-    '-l',
-    '--lower_bound',
+    "-l",
+    "--lower_bound",
     default=0,
-    dest='MIN_VALUE',
-    help='Lower bound of target feature.',
-    action='store')
+    dest="MIN_VALUE",
+    help="Lower bound of target feature.",
+    action="store",
+)
 parser.add_argument(
-    '-u',
-    '--upper_bound',
+    "-u",
+    "--upper_bound",
     default=1,
     dest="MAX_VALUE",
     help="Upper bound for target feature.",
-    action='store'
+    action="store",
 )
 parser.add_argument(
-    '-g',
-    '--crs',
+    "-g",
+    "--crs",
     default="EPSG:4326",
     dest="CRS",
     help="Coordinate Reference System of the given data.",
-    action='store'
+    action="store",
 )
 parser.add_argument(
-    '-xl',
-    '--xlabel',
+    "-xl",
+    "--xlabel",
     default="Longitude",
     dest="XLABEL",
     help="A label for the x axis of the data.",
-    action='store'
+    action="store",
 )
 parser.add_argument(
-    '-yl',
-    '--ylabel',
+    "-yl",
+    "--ylabel",
     default="Latitude",
     dest="YLABEL",
     help="A label for the y axis of the data.",
-    action='store'
+    action="store",
 )
 parser.add_argument(
-    '-ll',
-    '--legendlabel',
+    "-ll",
+    "--legendlabel",
     default="",
     dest="LEGEND",
     help="A label for the legend.",
-    action='store'
+    action="store",
 )
 
 

@@ -1,0 +1,7 @@
+{
+	"latVar":"Lattitude",
+	"lonVar":"Longitude",
+	"is360":false,
+	"filter": [["Disease Name", "Dengue Fever", "e"], ["Location Name", "SRILANKA", "n"], ["Location Name", "Kalmune", "n"]],
+	"extraVars": ["Cases", "Location Name"]
+}

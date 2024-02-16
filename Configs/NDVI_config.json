@@ -1,14 +1,10 @@
 {
-  "data_path": "Data/",
-  "compress": true,
   "crs": "EPSG:4326",
-  "data_dir": "NDVI",
-  "regions_dir": "Countries",
-  "out_dir": "NDVI_OUT",
+  "regions_dir": "Data/Countries",
+  "data_dir": "Data/NDVI",
+  "out_dir": "Data/OUT",
   "regions_file_map":  {
     "Sri Lanka": "gadm41_LKA_1.json",
-    "USA": "gadm41_USA_1.json",
-    "China": "gadm41_CHN_1.json",
     "Brazil": "gadm41_BRA_1.json"
   },
   "selected_regions": ["Sri Lanka"],
@@ -16,5 +12,6 @@
   "joins": {
     "NDVI": ["mean", "min", "max"]
   },
-  "file_extension": "*.nc"
+  "file_extension": "*.nc",
+  "chunk": 7
 }

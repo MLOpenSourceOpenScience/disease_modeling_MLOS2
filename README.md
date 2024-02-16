@@ -1,18 +1,27 @@
-# disease_modeling_MLOS2
+# Disease Modeling
 ------------------------------------------------------------------------------------------------------------------------------
 ## Project Description:
+Data preprocessing and model training for near real time disease forecasting.
+
+## Installation:
+Set up a python envrionment.
+```shell
+conda env create -f environment.yml
+conda activate dm_mlos2
+```
 
 ## Gathering Data:
 1. For consistent results, a standardized directory structure must be defined as follows:
-   1. A directory must be created to store all retrieved data.
-   2. A subdirectory should be created for each data source, i.e., every category of satellite data.
-   3. A subdirectory should be created for storing geographical data. 
-2. The data used in this project is from NASA's Earth Observational Satellite Data. This data can be retrieved from Nasa Giovanni, NOAH, and MODIS by following the instructions on NASA Earthdata: https://www.earthdata.nasa.gov/. A detailed guide is available at https://towardsdatascience.com/getting-nasa-data-for-your-next-geo-project-9d621243b8f3.
-   1. This project will use GPM, GLDAS, and NDVI data.
-   2. Satellite data will come in HDF5, netCDF, and netCDF4 formats. Our use case only requires netCDF and netCDF4 data, hence, our code does not support other formats.
-   3. Satellite data comes at varying resolutions. Our preprocessor implementation is resolution agnostic.
+   * A directory should be created for each data source, i.e., every category of satellite data.
+   * A directory should be created for storing geographical data. 
+2. The data used in this project is from NASA's Earth Observational Satellite Data, specifically Giovanni, NOAH, and MODIS by following the instructions on [NASA Earthdata](https://www.earthdata.nasa.gov/). A detailed guide is available [here](https://towardsdatascience.com/getting-nasa-data-for-your-next-geo-project-9d621243b8f3).
+   * This project will use GPM, GLDAS, and NDVI data.
+   * Satellite data will come in HDF5, netCDF, and netCDF4 formats. Our code does not support other formats.
+   * Satellite data comes at varying resolutions; Our preprocessor is resolution agnostic.
 3. Geographical data in the form of GeoJSONs is also required.
-   1. In our case, we will be using Sri Lanka's GeoJSON data retrieved from https://gadm.org/download_country.html. Simply download the desired resolution.
+   * In our case, we will be using Sri Lanka's GeoJSON data retrieved from [gadm](https://gadm.org/download_country.html). Simply download the desired resolution.
+4. Disease data will be obtained from our NLP team. Their work is available [here](https://github.com/MLOpenSourceOpenScience/disease_data_parser_MLOS2).
+   * We provide solutions for integrating their data into the dataset as part of our [package](https://pypi.org/project/mlossp/). 
 
 Below is a sample directory tree:
 ```text
@@ -31,27 +40,29 @@ Below is a sample directory tree:
 ```
 
 ## Preprocessing Data
-1. Once your desired data is downloaded, configuration files must be made to specify how the data will be processed with our package mlossp.
+1. Once data is downloaded, configuration files must be made to specify how the data will be processed.
 2. Your preprocessing script and configuration files can be placed anywhere, so long as you provide the relative Path to your data.
-3. Instructions and documentation to create these files can be found at https://pypi.org/project/mlossp/.
+3. Instructions and documentation to create these files is available [here](https://github.com/MLOpenSourceOpenScience/disease_modeling_MLOS2/tree/main/MLOSSP).
 
 ## Visualizing Data
-1. To visualize the data, you must have saved pickle files during the preprocessing step by setting compress to True. These should be located within your designated out directory for each category of satellite data.
-2. Download ffmpeg from https://ffmpeg.org/download.html.
-   1. Set the variable ```plt.rcParams['animation.ffmpeg_path']``` to the absolute path to the ffmpeg.exe executable file that is in the ffmpeg directory.
-3. Run the visualize.py script, providing the following command line arguments:
-   1. -t - The title of your graph.
-   2. -d - The path to your data directory as defined in the Gathering Data section.
-   3. -c - The column name of the target feature you would like to visualize.
-   4. -o - The path to the file where the resulting visualization will be saved.
-   5. -f - The frames per second of your visualization. Lower fps will result in a slower animation.
-   6. -l - The lower bound of the possible values of your target feature. Defaults to 0.
-   7. -u - The upper bound of the possible values of your target feature. Defaults to 1.
-   8. -g - The coordinate reference system used by your data. Defaults to EPSG:4326.
-   9. -xl - The x label of the graph. Defaults to None.
-   10. -yl - The y label of the graph. Defaults to None.
-   11. -ll - The label for the graph's legend. Defaults to none.
-   
+1. To visualize the data, you must have saved pickle files during the preprocessing step by defining compress_to in your config file.
+2. Download [ffpmeg](https://ffmpeg.org/download.html).
+3. Set ```plt.rcParams['animation.ffmpeg_path']``` in visualize.py to the absolute path to ffmpeg.exe in the ffmpeg directory.
+4. Run the visualize.py script, providing the following command line arguments:
+
+| Flag | Description                                          | Default               |
+|------|------------------------------------------------------|-----------------------|
+| -t   | Graph Title                                          | None                  |
+| -d   | Path to your pickle files.                           | The working directory |
+| -c   | Column name of the target feature for visualization. | The working directory |
+| -o   | Output file path.                                    | The working directory |
+| -f   | Frames per second of the visualization.              | 5                     |
+| -l   | Lower bound of feature value.                        | 0                     |
+| -u   | Upper bound of feature value.                        | 1                     |
+| -g   | The data's coordinate reference system.              | EPSG:4326             |
+| -xl  | The graph's x axis label.                            | Longitude             |
+| -yl  | The graph's y axis label.                            | Latitude              |
+| -ll  | The graph's legend label.                            | None                  |
 
 Given the following directory structure:
 ```text
