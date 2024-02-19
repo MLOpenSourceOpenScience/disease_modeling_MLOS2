@@ -49,7 +49,7 @@ Below is a sample directory tree:
 ## Preprocessing Data
 1. Once data is downloaded, configuration files must be made to specify how the data will be processed.
 2. Your preprocessing script and configuration files can be placed anywhere, so long as you provide the relative Path to your data.
-3. Instructions and documentation to create these files is available [here](https://github.com/MLOpenSourceOpenScience/disease_modeling_MLOS2/tree/main/MLOSSP).
+3. Documentation for these files is available [here](https://github.com/MLOpenSourceOpenScience/disease_modeling_MLOS2/tree/main/MLOSSP).
 
 ## Visualizing Data
 1. To visualize the data, you must have saved pickle files during the preprocessing step by defining compress_to in your config file.
