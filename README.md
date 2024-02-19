@@ -4,7 +4,14 @@
 Data preprocessing and model training for near real time disease forecasting.
 
 ## Installation:
-Set up a python envrionment.
+
+Download this repository.
+```shell
+git clone https://github.com/MLOpenSourceOpenScience/disease_modeling_MLOS2
+cd disease_modeling_MLOS2
+```
+
+Set up a python environment.
 ```shell
 conda env create -f environment.yml
 conda activate dm_mlos2
