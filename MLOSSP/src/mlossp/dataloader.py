@@ -26,10 +26,9 @@ class DataLoader:
         self.chunk_size = chunk_size
         self.f_id = 0
         self.files_to_load = [f for f in Path(path_to_dir).glob(extension)]
-        self.load = partial(self.__load, extension)
+        self.load = partial(self._load, extension)
 
     def __iter__(self):
-        self.f_id = 0
         return self
 
     def __next__(self):
@@ -38,7 +37,7 @@ class DataLoader:
         self.f_id += self.chunk_size
 
         if self.chunk_size != 1:
-            return self.__load_chunked(
+            return self._load_chunked(
                 [
                     self.load(f)
                     for f in self.files_to_load[
@@ -53,21 +52,21 @@ class DataLoader:
         return len(self.files_to_load)
 
     @staticmethod
-    def __load_from_pickle(path: Path, crs: str):
+    def _load_from_pickle(path: Path, crs: str):
         p_df = pd.read_pickle(path)
         return gpd.GeoDataFrame(p_df, geometry=p_df["geometry"], crs=crs)
 
     @staticmethod
-    def __load_chunked(f: List[Any]):
+    def _load_chunked(f: List[Any]):
         gdf = pd.concat([d for _, d in f]).drop("geometry", axis=1)
         gdf = gdf.groupby(gdf.index).mean()
         gdf = gpd.GeoDataFrame(gdf, geometry=f[0][1].geometry)
         return f[0][0], gdf.to_crs(f[0][1].crs)
 
-    def __load(self, extension: str, f: Path):
+    def _load(self, extension: str, f: Path):
         match extension:
             case "*.pkl":
-                return f, self.__load_from_pickle(f, self.crs)
+                return f, self._load_from_pickle(f, self.crs)
             case "*.json":
                 return f, gpd.read_file(f, engine="pyogrio", use_arrow=True)
             case "*.geojson":

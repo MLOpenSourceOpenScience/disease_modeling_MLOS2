@@ -49,4 +49,4 @@ def process_all(config_list, kwargs_list):
 
 if __name__ == "__main__":
     process_all(CONFIG_LIST, KWARGS_LIST)
-    # sp.Preprocessor.align_npy("Data/Test_In", "Data/Test_Out/sri_lanka_2021")
+    sp.Preprocessor.align_npy("Data/OUT", "Data/OUT/sri_lanka_full")

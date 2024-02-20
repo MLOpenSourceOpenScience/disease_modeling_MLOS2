@@ -136,7 +136,7 @@ class Preprocessor:
 
             # Checkpoint Iterator State
             with open(checkpoint_path, "wb") as checkpoint:
-                pickle.dump((file_list, out), checkpoint)
+                pickle.dump((file_list, out), checkpoint, protocol=-1)
 
         # Save all time series as numpy files.
         for r, rdf in out.items():
@@ -146,7 +146,7 @@ class Preprocessor:
             )
             self._log(f"Saving outputs for {r} to {pth}")
             np.save(f"{pth}.npy", series)
-            save_np_as_csv(f"{pth}.csv", series, rdf[0].columns)
+            save_np_as_csv(f"{pth}.csv", series, list(regions[r].columns))
 
         os.remove(checkpoint_path)
 

@@ -38,7 +38,7 @@ preprocessor.preprocess_multi(config_list, kwargs_list)
 
 ### Configuration Files
 
-Every category of data - that is, data within a directory - should have a json configuration file. The following keys should be defined within the configuration file:
+Every category of data, i.e., data within a directory should have a json configuration file. The following keys should be defined within the configuration file:
 
 | Key              | Description                                                                                             | Optional |
 |------------------|---------------------------------------------------------------------------------------------------------|----------|
@@ -146,7 +146,7 @@ If you would like to atomicize your csv files, see [Formatting CSVs](#Formatting
 ### Formatting CSVs
 CSVs are inherently designed to support tabular, 2D data. Hence, storing higher-dimensional data such as tensors and ndarrays as CSVs results in inconsistent formats.
 
-We offer ``` mlossp.formatters``` as a solution to parse a (or a list of) 3D CSV files into a 3D numpy tensor, which is formatted then written into a .npy file and a .csv file that is supported by ```align_csv``` and ```align_npy```. 
+We offer ```mlossp.formatters``` as a solution to parse a (or a list of) 3D CSV files into a 3D numpy tensor, which is formatted then written into a .npy file and a .csv file that is supported by ```align_csv``` and ```align_npy```. 
 
 ### Citations
 This package incorporates modified code from https://github.com/podaac/netcdf_to_geojson_vectors, which is licensed under Apache 2.0. You may obtain a copy of the license at: http://www.apache.org/licenses/LICENSE-2.0.
