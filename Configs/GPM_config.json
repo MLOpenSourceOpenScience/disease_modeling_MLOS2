@@ -13,5 +13,5 @@
     "precipitationCal": ["mean", "min", "max"]
   },
   "file_extension": "*.nc4",
-  "chunk": 7
+  "chunk": 1
 }

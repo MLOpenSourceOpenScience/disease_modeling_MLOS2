@@ -14,5 +14,5 @@
     "Qair_f_inst": ["mean", "min", "max"]
   },
   "file_extension": "*.nc4",
-  "chunk": 56
+  "chunk": 8
 }
