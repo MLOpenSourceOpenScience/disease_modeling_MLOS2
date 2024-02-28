@@ -43,21 +43,18 @@ def get_nc(input_file, config_file, crs="EPSG:4326", verbose=True):
     log(f"Reading {input_file}", verbose)
     conf = read_config(config_file)
 
-    # Read dataset and remove nan values
     local_dataset = xr.open_dataset(input_file, chunks="auto", decode_times=False)
     df = local_dataset.to_dataframe()
     df = df.dropna(how="any", axis=0).reset_index()
 
-    # Convert extents from 0 - 360 to -180 - 180
     if conf["is360"] is True:
         df[conf["lonVar"]] = (df[conf["lonVar"]] + 180) % 360 - 180
 
     log(df, verbose)
     data = {}
 
-    # Pass through any specified extra variables
-    if conf.get("extraVars"):
-        extraVars = conf.get("extraVars")
+    # Extract desired features
+    if extraVars := conf.get("extraVars"):
         if isinstance(extraVars, str):
             extraVars = [extraVars]
         for var in extraVars:
@@ -84,8 +81,9 @@ def get_csv(input_file, config, crs="EPSG:4326", verbose=True):
     if conf["is360"]:
         gdf[conf["lonVar"]] = (gdf[conf["lonVar"]] + 180) % 360 - 180
 
-    if conf.get("filter", None):
-        for col, feat, kind in conf.get("filter"):
+    # Filter attributes
+    if filters := conf.get("filter"):
+        for col, feat, kind in filters:
             match kind:
                 case "e":
                     gdf = gdf.loc[gdf[col] == feat]
@@ -94,8 +92,12 @@ def get_csv(input_file, config, crs="EPSG:4326", verbose=True):
                 case _:
                     raise ValueError("Unsupported filter type.")
 
-    if conf.get("extraVars"):
-        extraVars = conf.get("extraVars")
+    # Rename attributes
+    if r_dict := conf.get("replace"):
+        gdf.replace(r_dict, inplace=True)
+
+    # Extract desired features
+    if extraVars := conf.get("extraVars"):
         if isinstance(extraVars, str):
             extraVars = [extraVars]
         for col in gdf.columns:

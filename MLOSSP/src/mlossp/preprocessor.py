@@ -25,7 +25,11 @@ import geopandas as gpd
 from tqdm import tqdm
 
 from .dataloader import DataLoader
-from .globals import save_np_as_csv
+from .globals import (
+    save_np_as_horizontal_csv,
+    save_np_as_vertical_csv,
+    load_horizontal_csv,
+)
 
 
 class Preprocessor:
@@ -56,9 +60,9 @@ class Preprocessor:
             if not os.path.exists(d):
                 os.mkdir(d)
 
-    def _load_config(self, c_f: str):
-        self._log(f"Loading Config from {c_f}")
-        with open(c_f) as f:
+    def _load_config(self, cfg: str):
+        self._log(f"Loading Config from {cfg}")
+        with open(cfg) as f:
             config = json.load(f)
             self.COMPRESS_TO = config.get("compress_to", None)
             self.CRS = config.get("crs", "EPSG:4326")
@@ -116,7 +120,7 @@ class Preprocessor:
             )
             out = defaultdict(list)
 
-        # Join satellite data across all selected regions
+        # Join satellite data across all data sources and regions
         for f, gdf in tqdm(file_list):
             for r, rdf in regions.items():
                 gdf.to_crs(rdf.crs)
@@ -146,12 +150,20 @@ class Preprocessor:
             )
             self._log(f"Saving outputs for {r} to {pth}")
             np.save(f"{pth}.npy", series)
-            save_np_as_csv(f"{pth}.csv", series, list(regions[r].columns))
+            save_np_as_horizontal_csv(
+                f"{pth}.csv", series, list(regions[r][self.JOIN_ON])
+            )
+            save_np_as_vertical_csv(
+                f"{pth}_vertical.csv",
+                series,
+                list(regions[r][self.JOIN_ON]),
+                list(rdf[0].columns),
+            )
 
         os.remove(checkpoint_path)
 
     def preprocess(self, from_checkpoint: bool = False):
-        """
+        r"""
         :param from_checkpoint: Set to true to load from a checkpoint
         """
         self._layer_and_concat(
@@ -164,7 +176,7 @@ class Preprocessor:
         kwargs_list: Optional[List[dict]],
         from_checkpoint: bool = False,
     ):
-        """
+        r"""
         :param config_list: A list of config file names
         :param kwargs_list: A list of dictionaries mapping kwargs for each config
         :param from_checkpoint: Set to true to load from the latest checkpoint
@@ -196,32 +208,59 @@ class Preprocessor:
 
     @staticmethod
     def align_npy(path: str, out_path: str):
-        """
+        r"""
         Aligns all .npy files within the provided directory into a npy and csv file.
         All files must be preprocessed to have the same number of timestamps.
         Data of different lengths are repeated to be equal to the longest time series.
         :param path: Path to the directory containing the data files.
         :param out_path: Path to the output file, e.g. Data/output_file_name.
         """
-
         data_series = [
             np.load(str(n), allow_pickle=True) for n in Path(path).glob("*.npy")
         ]
         aligned_data = Preprocessor._align_npy_series(data_series)
         print(f"Saving time series of shape {aligned_data.shape}.")
         np.save(f"{out_path}.npy", aligned_data)
-        save_np_as_csv(f"{out_path}.csv", aligned_data)
+        save_np_as_horizontal_csv(f"{out_path}.csv", aligned_data)
 
     @staticmethod
-    def align_csv(path: str, out_path: str):
-        """
-        Aligns csv time series data. All data must have identical columns.
+    def align_horizontal_csv(path: str, out_path: str):
+        r"""
+        Aligns all horizontal csv time series data within a directory. All data must have identical columns.
+        If you have vertical csv data, see mlossp.formatter's format_csv and format_dir functions or align_vertical_csv.
         :param path: Path to the directory with the csv data
         :param out_path: Path to the output file
         """
-
         data_series = [n for n in Path(path).glob("*.csv")]
         columns = pd.read_csv(data_series[0]).columns
-        data_series = [np.genfromtxt(str(n), delimiter=",") for n in data_series]
+        data_series = [load_horizontal_csv(str(n)) for n in data_series]
         aligned_data = Preprocessor._align_npy_series(data_series)
-        save_np_as_csv(out_path, aligned_data, columns)
+        save_np_as_horizontal_csv(out_path, aligned_data, columns)
+
+    @staticmethod
+    def align_vertical_csv(path: str, out_path: str):
+        r"""
+        Aligns all csv time series data within a directory.
+        All data must be vertical and have the same number of rows.
+        :param path: Path to the directory with the csv data
+        :param out_path: Path to the output file
+        """
+        data_series = [pd.read_csv(n) for n in Path(path).glob("*.csv")]
+        aligned_data = pd.concat(data_series, axis = 1)
+        aligned_data.to_csv(out_path)
+
+    @staticmethod
+    def align_all(path: str, out_path: str):
+        r"""
+        Aligns all horizontal csvs and numpy time series data within a directory. All data must have identical columns.
+        :param path: Path to the directory
+        :param out_path: Path to the output file
+        """
+        npy_series = [
+            np.load(str(n), allow_pickle=True) for n in Path(path).glob("*.npy")
+        ]
+        csv_series = [n for n in Path(path).glob("*.csv")]
+        columns = pd.read_csv(csv_series[0]).columns
+        csv_series = [load_horizontal_csv(str(n)) for n in csv_series]
+        aligned_data = Preprocessor._align_npy_series(csv_series + npy_series)
+        save_np_as_horizontal_csv(out_path, aligned_data, columns)
