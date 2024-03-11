@@ -1,6 +1,5 @@
 # Disease Modeling
 ------------------------------------------------------------------------------------------------------------------------------
-## Project Description:
 Data preprocessing and model training for near real time disease forecasting.
 
 ## Installation:
