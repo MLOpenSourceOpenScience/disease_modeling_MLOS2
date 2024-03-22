@@ -31,18 +31,18 @@ conda activate dm_mlos2
 
 Below is a sample directory tree:
 ```text
-- Data
-    - Geographical
-        - Sri_Lanka.json
-    - GPM
-        - GPM.nc
-        - GPM2.nc
-    - GLDAS
-        - GLDAS.nc
-        - GLDAS2.nc
-    - NDVI
-        - NDVI.nc4
-        - NDVI2.nc4
+├─ Data
+|   ├─ Geographical
+|   |   ├─ Sri_Lanka.json
+|   ├─ GPM
+|   |   ├─ GPM.nc
+|   |   ├─ GPM2.nc
+|   ├─ GLDAS
+|   |   ├─ GLDAS.nc
+|   |   ├─ GLDAS2.nc
+|   ├─ NDVI
+|   |   ├─ NDVI.nc4
+|   |   ├─ NDVI2.nc4
 ```
 
 ## Preprocessing Data
@@ -72,14 +72,14 @@ Below is a sample directory tree:
 
 Given the following directory structure:
 ```text
-    - Data
-        - Geographical
-        - GPM
-        - GPM_OUT
-            - GPM_OUT1.pkl
-            - GPM_OUT2.pkl
-        - Visualizations
-    - visualize.py
+    ├─ Data
+    |   ├─ Geographical
+    |   ├─ GPM
+    |   ├─ GPM_OUT
+    |       ├─ GPM_OUT1.pkl
+    |       ├─ GPM_OUT2.pkl
+    |   ├─ Visualizations
+    ├─ visualize.py
 ```
 
 The following command line command can be run:
