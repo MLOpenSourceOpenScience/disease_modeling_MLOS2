@@ -247,6 +247,18 @@ class Preprocessor:
         """
         data_series = [pd.read_csv(n) for n in Path(path).glob("*.csv")]
         aligned_data = pd.concat(data_series, axis = 1)
+        aligned_data = aligned_data.loc[:, ~aligned_data.columns.duplicated()]
+        aligned_data.to_csv(out_path)
+
+    @staticmethod
+    def align_vertical_df(dataframes: List[pd.DataFrame], out_path: str):
+        r"""
+        Aligns a list of dataframes and writes them to out_path
+        :param dataframes: A list of pandas dataframes
+        :param out_path: Path to the output file
+        """
+        aligned_data = pd.concat(dataframes, axis=1)
+        aligned_data = aligned_data.loc[:, ~aligned_data.columns.duplicated()]
         aligned_data.to_csv(out_path)
 
     @staticmethod
