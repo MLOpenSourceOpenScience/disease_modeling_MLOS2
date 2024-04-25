@@ -11,8 +11,11 @@
   "join_on": "NAME_1",
   "joins": {
     "Tair_f_inst": ["mean", "min", "max"],
-    "Qair_f_inst": ["mean", "min", "max"]
+    "Qair_f_inst": ["mean"],
+    "SoilMoi0_10cm_inst": ["mean"],
+    "CanopInt_inst": ["mean"],
+    "Psurf_f_inst": ["mean"]
   },
   "file_extension": "*.nc4",
-  "chunk": 8
+  "chunk": 56
 }

@@ -2,5 +2,5 @@
 	"latVar":"lat",
 	"lonVar":"lon",
 	"is360":false,
-	"extraVars": ["Tair_f_inst", "Qair_f_inst", "Psurf_f_inst", "CanopInt_inst", "SoilMoi0_10cm_inst"]
+	"extraVars": ["Tair_f_inst", "Qair_f_inst", "Psurf_f_inst", "CanopInt_inst", "SoilMoi0_10cm_inst", "time"]
 }

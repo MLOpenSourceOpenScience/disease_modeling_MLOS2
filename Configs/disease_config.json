@@ -2,6 +2,24 @@
 	"latVar":"Lattitude",
 	"lonVar":"Longitude",
 	"is360":false,
-	"filter": [["Disease Name", "Dengue Fever", "e"], ["Location Name", "SRILANKA", "n"], ["Location Name", "Kalmune", "n"]],
-	"extraVars": ["Cases", "Location Name"]
+	"filter": [
+		["Disease Name", "Dengue Fever", "e"],
+		["Location Name", "SRILANKA", "n"],
+		["Location Name", "Kalmune", "n"],
+		["Location Name", "Kalmunei", "n"],
+		["Location Name", "SRI", "n"]
+	],
+	"replace": {
+		"Location Name": {
+			"paha": "Gampaha",
+			"Anuradhap": "Anuradhapura",
+			"Anuradhapu": "Anuradhapura",
+			"Anuradhapur": "Anuradhapura",
+			"Trincomale": "Trincomalee",
+			"Polonnaruw": "Polonnaruwa",
+			"NuwaraEliy": "NuwaraEliya",
+			"Hambantot": "Hambantota"
+		}
+	},
+	"extraVars": ["Cases", "Location Name", "Source File"]
 }

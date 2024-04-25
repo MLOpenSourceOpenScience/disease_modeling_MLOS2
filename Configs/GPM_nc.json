@@ -2,5 +2,5 @@
 	"latVar":"lat",
 	"lonVar":"lon",
 	"is360":false,
-	"extraVars": ["precipitationCal"]
+	"extraVars": ["precipitationCal", "time"]
 }

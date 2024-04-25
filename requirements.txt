@@ -9,3 +9,9 @@ folium~=0.15.1
 mapclassify~=2.6.1
 matplotlib~=3.8.2
 tqdm~=4.66.1
+keras==2.15.0
+scikit_learn==1.4.0
+statsmodels==0.14.1
+torch==2.1.2
+torch_geometric==2.5.3
+torch_geometric_temporal==0.54.0

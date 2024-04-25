@@ -13,5 +13,5 @@
     "NDVI": ["mean", "min", "max"]
   },
   "file_extension": "*.nc",
-  "chunk": 1
+  "chunk": 7
 }

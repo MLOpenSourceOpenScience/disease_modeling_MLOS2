@@ -16,6 +16,17 @@ conda env create -f environment.yml
 conda activate dm_mlos2
 ```
 
+Install Dependencies
+```shell
+pip install requirements.txt
+```
+
+Run the Models
+```shell
+cd Models
+python .\evaluation.py
+```
+
 ## Gathering Data:
 1. For consistent results, a standardized directory structure must be defined as follows:
    * A directory should be created for each data source, i.e., every category of satellite data.

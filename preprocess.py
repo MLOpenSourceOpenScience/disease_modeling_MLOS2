@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from pathlib import Path
 
 import mlossp as sp
@@ -58,7 +59,7 @@ def process_all(config_list, kwargs_list):
 if __name__ == "__main__":
     # Preprocess data
     # process_all(CONFIG_LIST, KWARGS_LIST)
-    # process_one("Configs/GLDAS_config.json", KWARGS_LIST[2])
+    # process_one("Configs/GPM_config.json", KWARGS_LIST[1])
 
     # Load and reshape dataframes
     data_series = [n for n in Path("C:/CS/disease_modeling_MLOS2/Data/TEST").glob("*.csv")]
@@ -74,8 +75,14 @@ if __name__ == "__main__":
     data_series += [dse]
     data_series[0] = data_series[0][315*25:791*25].reset_index()
     data_series[1] = data_series[1][333*25:809*25].reset_index()
+    data_series[1]["minTime"] = data_series[1]["minTime"].apply(lambda x : str(datetime(1970, 1, 1) + timedelta(days=x)))
     data_series[2] = data_series[2][333*25:809*25].reset_index()
     data_series[3] = data_series[3].reset_index()
 
     # Vertical Alignment
     sp.Preprocessor.align_vertical_df(data_series, "Data/Datasets/sri_lanka_2013-2022_vertical.csv")
+
+    # Drop unnecessary cols
+    df = pd.read_csv("Data/Datasets/sri_lanka_2013-2022_vertical.csv")
+    df.drop(["index", "time", "Unnamed: 0"], axis=1, inplace=True)
+    df.to_csv("Data/Datasets/sri_lanka_2013-2022_vertical.csv", index=False)

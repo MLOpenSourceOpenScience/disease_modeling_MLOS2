@@ -10,8 +10,9 @@
   "selected_regions": ["Sri Lanka"],
   "join_on": "NAME_1",
   "joins": {
-    "precipitationCal": ["mean", "min", "max"]
+    "precipitationCal": ["mean", "min", "max"],
+    "time": ["min"]
   },
   "file_extension": "*.nc4",
-  "chunk": 1
+  "chunk": 7
 }
