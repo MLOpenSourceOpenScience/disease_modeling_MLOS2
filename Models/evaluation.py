@@ -23,7 +23,7 @@ index = {
     i: v
     for i, v in enumerate(sorted(json.load(open("sri_lanka_adj_list.json")).keys()))
 }
-data_file = "../Data/Datasets/MLOS_Final.npy"
+data_file = "../Data/Datasets/sri_lanka_2013-2022_shifted.npy"
 
 
 def MAPE(y_true, y_pred):
