@@ -65,8 +65,8 @@ class STGAT(torch.nn.Module):
         self.dropout = dropout
         self.n_nodes = n_nodes
         self.batch_size = batch_size
-        h_1 = 256
-        h_2 = 256
+        h_1 = 64
+        h_2 = 64
 
         self.gat = GATConv(
             in_channels=in_channels,
@@ -121,6 +121,8 @@ class DConvRNN(torch.nn.Module):
 
     def forward(self, data):
         x, edge_index = data.x, data.edge_index
+        if len(x.shape) == 3:
+            x = torch.reshape(x, (x.shape[0], -1))
         h = self.recurrent(x.float(), edge_index)
         h = F.relu(h)
         h = self.linear(h)

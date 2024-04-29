@@ -1,5 +1,6 @@
 import datetime
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
@@ -11,8 +12,8 @@ if __name__ == "__main__":
     state_data = data[data["region"] == "Kalutara"].reset_index(drop=True)
 
     # Separate target variable and exogenous factors
-    y = state_data["cases"]
-    X = state_data.drop(
+    yc = state_data["cases"]
+    Xc = state_data.drop(
         [
             "Week",
             "region",
@@ -30,21 +31,33 @@ if __name__ == "__main__":
         axis=1,
     )
 
-    # 80-20 train-test split
-    split_point = int(len(y) * 0.7)
-    train_y, test_y = y[:split_point], y[split_point:]
-    train_X, test_X = X[:split_point], X[split_point:]
+    maes = []
+    rms = []
 
-    # Fit the SARIMAX model
-    model = SARIMAX(train_y, exog=train_X, order=(1, 2, 3), seasonal_order=(0, 0, 0, 0))
-    model_fit = model.fit(disp=False)
+    for s in [0.6, 0.7, 0.8, 0.9, 1.0]:
+        y = yc[:int(len(yc) * s)]
+        X = Xc[:int(len(yc) * s)]
 
-    forecast = model_fit.forecast(steps=len(test_y), exog=test_X)
-    forecast = forecast.to_numpy()
-    test_y = test_y.to_numpy()
-    print(
-        mean_absolute_error(test_y, forecast), root_mean_squared_error(test_y, forecast)
-    )
+        # 70-30 train-test split
+        split_point = int(len(y) * 0.7)
+        test_point = int(len(y) * 0.7)
+        train_y, test_y = y[:split_point], y[test_point:]
+        train_X, test_X = X[:split_point], X[test_point:]
+
+        # Fit the SARIMAX model
+        model = SARIMAX(train_y, exog=train_X, order=(1, 2, 3), seasonal_order=(0, 0, 0, 0))
+        model_fit = model.fit(disp=False)
+
+        forecast = model_fit.forecast(steps=len(test_y), exog=test_X)
+        forecast = forecast.to_numpy()
+        test_y = test_y.to_numpy()
+        mae = mean_absolute_error(test_y, forecast)
+        rmse = root_mean_squared_error(test_y, forecast)
+        maes += [mae]
+        rms += [rmse]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rms)}, Standard Deviation: {np.std(rms)}:")
 
     # Plot the actual vs forecasted values
     start_date = datetime.date(2013, 5, 13)

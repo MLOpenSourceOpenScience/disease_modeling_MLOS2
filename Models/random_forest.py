@@ -1,5 +1,6 @@
 import datetime
 
+import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.dates as md
@@ -11,8 +12,8 @@ if __name__ == "__main__":
     state_data = data[data["region"] == "Kalutara"].reset_index(drop=True)
 
     # Separate the target variable and the features
-    y = state_data["cases"]
-    X = state_data.drop(
+    yc = state_data["cases"]
+    Xc = state_data.drop(
         [
             "Week",
             "region",
@@ -30,28 +31,39 @@ if __name__ == "__main__":
         axis=1,
     )
 
-    # 80-20 train-test split
-    split_point = int(len(y) * 0.7)
-    train_y, test_y = y[:split_point], y[split_point:]
-    train_X, test_X = X[:split_point], X[split_point:]
+    maes = []
+    rms = []
 
-    # Instantiate and train the Random Forest model
-    rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
-    rf_model.fit(train_X, train_y)
+    for s in [0.6, 0.7, 0.8, 0.9, 1.0]:
+        y = yc[:int(len(yc) * s)]
+        X = Xc[:int(len(yc) * s)]
 
-    # Make predictions
-    predictions = rf_model.predict(test_X)
+        # 70-30 train-test split
+        split_point = int(len(y) * 0.7)
+        test_point = int(len(y) * 0.7)
 
-    # Evaluate the model
-    mae = mean_absolute_error(test_y, predictions)
-    rmse = root_mean_squared_error(test_y, predictions)
+        train_y, test_y = y[:split_point], y[test_point:]
+        train_X, test_X = X[:split_point], X[test_point:]
 
-    print("Mean Absolute Error (MAE):", mae)
-    print("Root Mean Squared Error (RMSE):", rmse)
+        # Instantiate and train the Random Forest model
+        rf_model = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_model.fit(train_X, train_y)
+
+        # Make predictions
+        predictions = rf_model.predict(test_X)
+
+        # Evaluate the model
+        mae = mean_absolute_error(test_y, predictions)
+        rmse = root_mean_squared_error(test_y, predictions)
+        maes += [mae]
+        rms += [rmse]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rms)}, Standard Deviation: {np.std(rms)}:")
 
     # Plotting the actual vs forecasted values
     start_date = datetime.date(2013, 5, 13)
-    t = [start_date + datetime.timedelta(weeks=t) for t in range(len(y))]
+    t = [start_date + datetime.timedelta(weeks=t) for t in range(len(yc))]
     plt.figure(figsize=(10, 6))
     plt.gca().xaxis.set_major_formatter(md.DateFormatter("%m/%d/%Y"))
     plt.gca().xaxis.set_major_locator(md.DayLocator(interval=400))

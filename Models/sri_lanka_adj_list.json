@@ -5,7 +5,7 @@
         "Hambantota",
         "Polonnaruwa",
         "Badulla",
-        "Matale",
+        "Matale"
     ],
     "Anuradhapura": [
         "Vavuniya",
@@ -14,7 +14,7 @@
         "Puttalam",
         "Kurunegala",
         "Matale",
-        "Polonnaruwa",
+        "Polonnaruwa"
     ],
     "Badulla": ["Moneragala", "Ratnapura", "NuwaraEliya", "Kandy", "Matale", "Ampara"],
     "Batticaloa": ["Polonnaruwa", "Trincomalee", "Ampara"],
@@ -32,7 +32,7 @@
         "Ratnapura",
         "Kalutara",
         "Colombo",
-        "Gampaha",
+        "Gampaha"
     ],
     "Kilinochchi": ["Jaffna", "Mullaitivu", "Mannar"],
     "Kurunegala": ["Kandy", "Matale", "Kegalle", "Gampaha", "Puttalam", "Anuradhapura"],
@@ -43,7 +43,7 @@
         "Badulla",
         "Kandy",
         "Kurunegala",
-        "Anuradhapura",
+        "Anuradhapura"
     ],
     "Matara": ["Galle", "Ratnapura", "Hambantota"],
     "Moneragala": ["Hambantota", "Ratnapura", "Badulla", "Ampara"],
@@ -60,14 +60,14 @@
         "Galle",
         "Kalutara",
         "Colombo",
-        "Kegalle",
+        "Kegalle"
     ],
     "Trincomalee": [
         "Batticaloa",
         "Polonnaruwa",
         "Anuradhapura",
         "Vavuniya",
-        "Mullaitivu",
+        "Mullaitivu"
     ],
-    "Vavuniya": ["Anuradhapura", "Mullaitivu", "Trincomalee", "Mannar"],
+    "Vavuniya": ["Anuradhapura", "Mullaitivu", "Trincomalee", "Mannar"]
 }

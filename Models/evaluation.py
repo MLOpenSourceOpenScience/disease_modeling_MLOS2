@@ -1,4 +1,5 @@
 import json
+import random
 
 import numpy as np
 import torch
@@ -14,6 +15,10 @@ from tqdm import tqdm
 from gnn_models import STGAT, TemporalGCN, AttentionSTGCN, DConvRNN, AdaptiveGCN
 from plotting import plot_prediction, plot_prediction_single, plot_prediction_full
 
+
+torch.manual_seed(0)
+random.seed(0)
+np.random.seed(0)
 
 batch_size = 1
 window_size = 3
@@ -63,6 +68,17 @@ def load_adjacency_matrix(adj_file, self_loop):
     return adj_matrix
 
 
+def load_data(data_file, use_disease_only, subset=1.0):
+    x = np.nan_to_num(np.load(data_file, allow_pickle=True))
+    if not use_disease_only:
+        mean, std = np.mean(x), np.std(x)
+    else:
+        mean, std = np.mean(x[..., -6]), np.std(x[..., -6])
+    x = z_norm(torch.tensor(x), mean, std)
+    x = x[:int(x.shape[0] * subset), ...]
+    return x, mean, std
+
+
 def create_dataset_single_shot(
     window_size=3,
     predict_ahead=3,
@@ -70,6 +86,7 @@ def create_dataset_single_shot(
     train_split=0.7,
     valid_split=0.1,
     use_disease_only=False,
+    subset=1.0
 ):
     """
     Returns a list of temporal data of shape Nodes x Feats x Window Size
@@ -78,16 +95,11 @@ def create_dataset_single_shot(
     edge_index = torch.tensor(
         [[x, y] for x in range(25) for y in range(25) if adj[x][y]], dtype=torch.long
     )
-    x = np.nan_to_num(np.load(data_file, allow_pickle=True))
-    if not use_disease_only:
-        mean, std = np.mean(x), np.std(x)
-    else:
-        mean, std = np.mean(x[..., -6]), np.std(x[..., -6])
-    x = z_norm(torch.tensor(x), mean, std)
+    x, mean, std = load_data(data_file, use_disease_only, subset)
 
     features = []
     targets = []
-    for i in range(window_size, x.shape[0] - predict_ahead - 1):
+    for i in range(window_size, x.shape[0] - predict_ahead):
         if use_disease_only:
             x_data = np.einsum("ij->ji", x[i - window_size : i, :, -6])
             y_data = np.einsum("ij->ji", x[i : i + predict_ahead, :, -6])
@@ -119,17 +131,13 @@ def create_dataset_single(
     train=0.7,
     val=0.1,
     use_disease_only=True,
+    subset=1.0
 ):
     adj = load_adjacency_matrix("sri_lanka_adj_list.json", self_loop)
     edge_index = torch.tensor(
         [[x, y] for x in range(25) for y in range(25) if adj[x][y]], dtype=torch.long
     )
-    x = np.nan_to_num(np.load(data_file, allow_pickle=True))
-    if use_disease_only:
-        mean, std = np.mean(x[:, :, -6]), np.std(x[:, :, -6])
-    else:
-        mean, std = np.mean(x), np.std(x)
-    x = z_norm(torch.tensor(x), mean, std)
+    x, mean, std = load_data(data_file, use_disease_only, subset)
     dataset = []
 
     for i in range(window_size, x.shape[0] - predict_ahead):
@@ -189,7 +197,7 @@ def infer(model, device, dataloader, mean, std, cat):
     mape /= n
 
     print(f"{cat}, MAE: {mae}, RMSE: {rmse}, MAPE: {mape}")
-    return y_pred, y_truth
+    return y_pred, y_truth, mae, rmse
 
 
 def train_model(model, train, val, device, mean, std):
@@ -260,7 +268,7 @@ def infer_single_shot(model, device, signals, mean, std, cat):
 
     preds = torch.stack(preds)
     labels = torch.stack(labels)
-    return preds, labels
+    return preds, labels, mae, rmse
 
 
 def train_single_shot(model, train, val, device, mean, std):
@@ -329,7 +337,7 @@ def infer_ASTGCN(model, device, dataloader, mean, std, cat):
     mape /= n
 
     print(f"{cat}, MAE: {mae}, RMSE: {rmse}, MAPE: {mape}")
-    return y_pred, y_truth
+    return y_pred, y_truth, mae, rmse
 
 
 def train_ASTGCN(model, train, val, device, mean, std):
@@ -397,7 +405,7 @@ def infer_AAGCN(model, device, dataloader, mean, std, cat):
     mape /= n
 
     print(f"{cat}, MAE: {mae}, RMSE: {rmse}, MAPE: {mape}")
-    return y_pred, y_truth
+    return y_pred, y_truth, mae, rmse
 
 
 def train_AAGCN(model, train, val, device, mean, std):
@@ -431,102 +439,148 @@ def train_AAGCN(model, train, val, device, mean, std):
     return model
 
 
-def run_stgat():
-    batch_size = 2
-    train, val, test, full, m, s = create_dataset_single(
-        batch_size, in_channels, out_channels, use_disease_only=True
-    )
-    model = STGAT(
-        in_channels=in_channels,
-        out_channels=out_channels,
-        n_nodes=num_nodes,
-        batch_size=batch_size,
-        dropout=dropout,
-    )
-    model = train_model(model, train, val, "cpu", m, s)
-    yp, yt = infer(model, "cpu", test, m, s, "Test")
-    plot_prediction(yp, yt, batch_size, num_nodes, index)
-    y_pred, y_truth = infer(model, "cpu", full, m, s, "Full")
-    plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
-    plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
-
-
-def run_a3tgcn():
-    batch_size = 1
-    use_disease_only = False
-    train, val, test, full, m, s = create_dataset_single_shot(
-        use_disease_only=use_disease_only
-    )
-    model = train_single_shot(
-        TemporalGCN(1 if use_disease_only else 11, 3), train, val, "cpu", m, s
-    )
-    y_pred, y_truth = infer_single_shot(model, "cpu", test, m, s, "Test")
-    plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
-    y_pred, y_truth = infer_single_shot(model, "cpu", full, m, s, "Full")
-    plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
-    plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
-
-
-def run_astgcn():
-    use_disease_only = False
-    train, val, test, full, m, s = create_dataset_single(
-        batch_size, in_channels, out_channels, use_disease_only=use_disease_only
-    )
-    model = AttentionSTGCN(
-        num_nodes=25,
-        num_feats=1 if use_disease_only else 11,
-        window_size=3,
-        predict_ahead=3,
-    )
-    model = train_ASTGCN(model.get_model(), train, val, "cpu", m, s)
-    y_pred, y_truth = infer_ASTGCN(model, "cpu", test, m, s, "Test")
-    plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
-    y_pred, y_truth = infer_ASTGCN(model, "cpu", full, m, s, "Full")
-    plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
-    plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
-
-
-def run_dcrnn():
-    use_disease_only = True
-    train, val, test, full, m, s = create_dataset_single(
-        batch_size, in_channels, out_channels, use_disease_only=True
-    )
-    model = DConvRNN(node_features=window_size, num_classes=3)
-    model = train_model(model, train, val, "cpu", m, s)
-    y_pred, y_truth = infer(model, "cpu", test, m, s, "Test")
-    plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
-    y_pred, y_truth = infer(model, "cpu", full, m, s, "Full")
-    plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
-    plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
-
-
-def run_aagcn():
-    use_disease_only = 0
-    train, val, test, full, m, s = create_dataset_single(
-        batch_size, in_channels, out_channels, use_disease_only=use_disease_only
-    )
-    adj = load_adjacency_matrix("sri_lanka_adj_list.json", True)
-    edge_index = (
-        torch.tensor(
-            [[x, y] for x in range(25) for y in range(25) if adj[x][y]],
-            dtype=torch.long,
+def run_stgat(segments = [1.0]):
+    maes = []
+    rmses = []
+    for i, s in enumerate(segments, 1):
+        batch_size = 2
+        train, val, test, full, m, s = create_dataset_single(
+            batch_size, in_channels, out_channels, use_disease_only=True, subset=s
         )
-        .t()
-        .contiguous()
-        .long()
-    )
-    model = AdaptiveGCN(1 if use_disease_only else 11, 1, num_nodes, edge_index)
-    model = train_AAGCN(model.get_model(), train, val, "cpu", m, s)
-    y_pred, y_truth = infer_AAGCN(model, "cpu", test, m, s, "Test")
-    plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
-    y_pred, y_truth = infer_AAGCN(model, "cpu", full, m, s, "Full")
-    plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
-    plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        model = STGAT(
+            in_channels=in_channels,
+            out_channels=out_channels,
+            n_nodes=num_nodes,
+            batch_size=batch_size,
+            dropout=dropout,
+        )
+        model = train_model(model, train, val, "cpu", m, s)
+        yp, yt, _, _ = infer(model, "cpu", test, m, s, "Test")
+        if i == len(segments):
+            plot_prediction(yp, yt, batch_size, num_nodes, index)
+        y_pred, y_truth, ma, rm = infer(model, "cpu", full, m, s, "Full")
+        if i == len(segments):
+            plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
+            plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        maes += [ma]
+        rmses += [rm]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rmses)}, Standard Deviation: {np.std(rmses)}")
+
+def run_a3tgcn(segments = [1.0]):
+    maes = []
+    rmses = []
+    for i, s in enumerate(segments, 1):
+        batch_size = 1
+        use_disease_only = False
+        train, val, test, full, m, s = create_dataset_single_shot(
+            use_disease_only=use_disease_only, subset=s
+        )
+        model = train_single_shot(
+            TemporalGCN(1 if use_disease_only else 11, 3), train, val, "cpu", m, s
+        )
+        y_pred, y_truth, _, _ = infer_single_shot(model, "cpu", test, m, s, "Test")
+        if i == len(segments):
+            plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
+        y_pred, y_truth, ma, rm = infer_single_shot(model, "cpu", full, m, s, "Full")
+        if i == len(segments):
+            plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
+            plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        maes += [ma]
+        rmses += [rm]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rmses)}, Standard Deviation: {np.std(rmses)}")
+
+def run_astgcn(segments = [1.0]):
+    maes = []
+    rmses = []
+    for i, s in enumerate(segments):
+        use_disease_only = False
+        train, val, test, full, m, s = create_dataset_single(
+            batch_size, in_channels, out_channels, use_disease_only=use_disease_only, subset=s
+        )
+        model = AttentionSTGCN(
+            num_nodes=25,
+            num_feats=1 if use_disease_only else 11,
+            window_size=3,
+            predict_ahead=3,
+        )
+        model = train_ASTGCN(model.get_model(), train, val, "cpu", m, s)
+        y_pred, y_truth, _, _ = infer_ASTGCN(model, "cpu", test, m, s, "Test")
+        if i == len(segments):
+            plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
+        y_pred, y_truth, ma, rm = infer_ASTGCN(model, "cpu", full, m, s, "Full")
+        if i == len(segments):
+            plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
+            plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        maes += [ma]
+        rmses += [rm]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rmses)}, Standard Deviation: {np.std(rmses)}")
+
+def run_dcrnn(segments = [1.0]):
+    maes = []
+    rmses = []
+    for i, s in enumerate(segments):
+        use_disease_only = True
+        train, val, test, full, m, s = create_dataset_single(
+            batch_size, in_channels, out_channels, use_disease_only=use_disease_only, subset=s
+        )
+        model = DConvRNN(node_features=window_size * 11 if not use_disease_only else window_size, num_classes=3)
+        model = train_model(model, train, val, "cpu", m, s)
+        y_pred, y_truth, _, _= infer(model, "cpu", test, m, s, "Test")
+        if i == len(segments):
+            plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
+        y_pred, y_truth, ma, rm = infer(model, "cpu", full, m, s, "Full")
+        if i == len(segments):
+            plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
+            plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        maes += [ma]
+        rmses += [rm]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rmses)}, Standard Deviation: {np.std(rmses)}")
+
+def run_aagcn(segments = [1.0]):
+    maes = []
+    rmses = []
+    for i, s in enumerate(segments):
+        use_disease_only = True
+        train, val, test, full, m, s = create_dataset_single(
+            batch_size, in_channels, out_channels, use_disease_only=use_disease_only, subset=s
+        )
+        adj = load_adjacency_matrix("sri_lanka_adj_list.json", True)
+        edge_index = (
+            torch.tensor(
+                [[x, y] for x in range(25) for y in range(25) if adj[x][y]],
+                dtype=torch.long,
+            )
+            .t()
+            .contiguous()
+            .long()
+        )
+        model = AdaptiveGCN(1 if use_disease_only else 11, 1, num_nodes, edge_index)
+        model = train_AAGCN(model.get_model(), train, val, "cpu", m, s)
+        y_pred, y_truth, _, _ = infer_AAGCN(model, "cpu", test, m, s, "Test")
+        if i == len(segments):
+            plot_prediction(y_pred, y_truth, batch_size, num_nodes, index)
+        y_pred, y_truth, ma, rm = infer_AAGCN(model, "cpu", full, m, s, "Full")
+        if i == len(segments):
+            plot_prediction_full(y_pred, y_truth, batch_size, num_nodes, index)
+            plot_prediction_single(y_pred, y_truth, batch_size, num_nodes, index, 9)
+        maes += [ma]
+        rmses += [rm]
+
+    print(f"Average MAE: {np.mean(maes)}, Standard Deviation: {np.std(maes)}")
+    print(f"Average RMSE: {np.mean(rmses)}, Standard Deviation: {np.std(rmses)}")
 
 
 if __name__ == "__main__":
-    run_stgat()
-    run_a3tgcn()
-    run_astgcn()
-    run_dcrnn()
-    run_aagcn()
+    run_stgat([0.6, 0.7, 0.8, 0.9, 1.0])
+    run_a3tgcn([0.6, 0.7, 0.8, 0.9, 1.0])
+    run_astgcn([0.6, 0.7, 0.8, 0.9, 1.0])
+    run_dcrnn([0.6, 0.7, 0.8, 0.9, 1.0])
+    run_aagcn([0.6, 0.7, 0.8, 0.9, 1.0])
