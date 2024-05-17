@@ -1,4 +1,4 @@
-# Disease Modeling
+# Graph Representation Learning for Dengue Forecasting
 ------------------------------------------------------------------------------------------------------------------------------
 Data preprocessing and model training for near real time disease forecasting.
 
