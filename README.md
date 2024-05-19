@@ -2,6 +2,9 @@
 ------------------------------------------------------------------------------------------------------------------------------
 Data preprocessing and model training for near real time disease forecasting.
 
+## Introduction
+In 2017, the largest recorded dengue outbreak in Sri Lanka’s history occurred. Since then, dengue has continued to threaten national health across Sri Lanka. The development of an effective Early Warning System (EWS) for dengue outbreaks is essential for Sri Lanka’s Ministry of Health to take preventative measures. We propose the use of Graph Neural Networks as EWS. Using earth observational data from NASA’s global satellites and dengue incidence data from Sri Lanka’s Ministry of Health, we developed a series of traditional and graph representation EWS to forecast Dengue cases across Sri Lanka’s 25 districts between 2013 and 2022. We demonstrate empirically that Graph Neural Networks which incorporate spatiotemporal relations significantly outperform traditional EWS such as Autoregressive Integrated Moving Average (ARIMA), Random Forest, and Long Short-Term Memory (LSTM). 
+
 ## Installation:
 
 Download this repository.
